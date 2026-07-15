@@ -76,7 +76,6 @@ export default function ToonHubCarousel() {
         zIndex: 10,
       };
     }
-    // back
     return {
       left: '50%',
       bottom: isMobile ? '32%' : '12%',
@@ -91,217 +90,224 @@ export default function ToonHubCarousel() {
   return (
     <div
       style={{
+        position: 'relative',
+        width: '100vw',
+        height: '100vh',
+        overflow: 'hidden',
         backgroundColor: IMAGES[activeIndex].bg,
         transition: 'background-color 650ms cubic-bezier(0.4,0,0.2,1)',
-        fontFamily: "'Inter', sans-serif",
-        position: 'relative',
-        width: '100%',
-        overflow: 'hidden',
+        fontFamily: `'Inter', sans-serif`,
       }}
     >
-      <div style={{ position: 'relative', width: '100%', height: '100vh', overflow: 'hidden' }}>
+      {/* Grain overlay */}
+      <div
+        style={{
+          position: 'absolute',
+          inset: 0,
+          backgroundImage: `url("${GRAIN_SVG}")`,
+          backgroundRepeat: 'repeat',
+          pointerEvents: 'none',
+          zIndex: 1,
+        }}
+      />
 
-        {/* Grain overlay */}
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            pointerEvents: 'none',
-            zIndex: 50,
-            backgroundImage: `url("${GRAIN_SVG}")`,
-            backgroundSize: '200px 200px',
-            backgroundRepeat: 'repeat',
-            opacity: 0.4,
-          }}
-        />
+      {/* Ghost text */}
+      <div
+        style={{
+          position: 'absolute',
+          top: '50%',
+          left: '50%',
+          transform: 'translate(-50%, -50%)',
+          fontFamily: `'Anton', sans-serif`,
+          fontSize: isMobile ? '20vw' : '14vw',
+          color: 'rgba(255,255,255,0.08)',
+          whiteSpace: 'nowrap',
+          pointerEvents: 'none',
+          userSelect: 'none',
+          zIndex: 2,
+          letterSpacing: '0.05em',
+        }}
+      >
+        3D SHAPE
+      </div>
 
-        {/* Ghost text */}
-        <div
-          style={{
-            position: 'absolute',
-            insetInline: 0,
-            top: '18%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            pointerEvents: 'none',
-            userSelect: 'none',
-            zIndex: 2,
-          }}
-        >
-          <span
-            style={{
-              fontFamily: "'Anton', sans-serif",
-              fontSize: 'clamp(90px, 28vw, 380px)',
-              fontWeight: 900,
-              color: 'white',
-              opacity: 1,
-              lineHeight: 1,
-              textTransform: 'uppercase',
-              letterSpacing: '-0.02em',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            3D SHAPE
-          </span>
-        </div>
+      {/* Brand label */}
+      <div
+        style={{
+          position: 'absolute',
+          top: isMobile ? 16 : 32,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          fontFamily: `'Anton', sans-serif`,
+          fontSize: isMobile ? '1.5rem' : '2rem',
+          color: 'white',
+          letterSpacing: '0.15em',
+          zIndex: 30,
+        }}
+      >
+        TOONHUB
+      </div>
 
-        {/* Brand label */}
-        <div
-          style={{
-            position: 'absolute',
-            top: '1.5rem',
-            left: isMobile ? '1rem' : '2rem',
-            zIndex: 60,
-            fontSize: '0.75rem',
-            fontWeight: 600,
-            textTransform: 'uppercase',
-            color: 'white',
-            opacity: 0.9,
-            letterSpacing: '0.18em',
-          }}
-        >
-          TOONHUB
-        </div>
-
-        {/* Carousel items */}
-        <div style={{ position: 'absolute', inset: 0, zIndex: 3 }}>
-          {IMAGES.map((img, i) => (
+      {/* Carousel items */}
+      <div style={{ position: 'absolute', inset: 0, zIndex: 15 }}>
+        {IMAGES.map((img, i) => {
+          const role = i === center ? 'center' : i === left ? 'left' : i === right ? 'right' : 'back';
+          const panelColor = img.panel;
+          return (
             <div
               key={i}
               style={{
                 position: 'absolute',
-                aspectRatio: '0.6 / 1',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
                 transition: TRANSITION,
-                willChange: 'transform, filter, opacity',
                 ...getRoleStyle(i),
               }}
             >
-              <img
-                src={img.src}
-                alt={`TOONHUB figure ${i + 1}`}
-                draggable={false}
+              <div
                 style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'contain',
-                  objectPosition: 'bottom center',
-                  display: 'block',
-                }}
-              />
-            </div>
-          ))}
-        </div>
-
-        {/* Bottom-left: text + nav buttons */}
-        <div
-          style={{
-            position: 'absolute',
-            bottom: isMobile ? '1.5rem' : '5rem',
-            left: isMobile ? '1rem' : '6rem',
-            zIndex: 60,
-            maxWidth: 320,
-          }}
-        >
-          <p
-            style={{
-              fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '0.02em',
-              marginBottom: isMobile ? '0.5rem' : '0.75rem',
-              fontSize: isMobile ? '1rem' : '1.375rem',
-              color: 'white',
-              opacity: 0.95,
-              margin: 0,
-              marginBottom: isMobile ? 8 : 12,
-            }}
-          >
-            TOONHUB FIGURINES
-          </p>
-          {!isMobile && (
-            <p
-              style={{
-                fontSize: '0.875rem',
-                color: 'white',
-                opacity: 0.85,
-                lineHeight: 1.6,
-                marginBottom: '1.25rem',
-                margin: 0,
-                marginBottom: 20,
-              }}
-            >
-              The artwork is stunning, shipped fully prepared. The finish is a vision, the 3D craft is flawless. Many thanks! Wishing you the win. Order now.
-            </p>
-          )}
-          <div style={{ display: 'flex', gap: '0.75rem', marginTop: isMobile ? 8 : 0 }}>
-            {([
-              { dir: 'prev' as const, Icon: ArrowLeft },
-              { dir: 'next' as const, Icon: ArrowRight },
-            ]).map(({ dir, Icon }) => (
-              <button
-                key={dir}
-                onClick={() => navigate(dir)}
-                style={{
-                  width: isMobile ? 48 : 64,
-                  height: isMobile ? 48 : 64,
-                  borderRadius: '50%',
-                  background: 'transparent',
-                  border: '2px solid white',
-                  color: 'white',
+                  background: panelColor,
+                  borderRadius: role === 'center' ? (isMobile ? 16 : 24) : 12,
+                  padding: role === 'center' ? (isMobile ? '8px 8px 0' : '12px 12px 0') : '6px 6px 0',
                   display: 'flex',
+                  flexDirection: 'column',
                   alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  transition: 'transform 150ms, background-color 150ms',
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1.08)';
-                  (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'rgba(255,255,255,0.12)';
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)';
-                  (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'transparent';
+                  height: '100%',
+                  boxSizing: 'border-box',
+                  boxShadow: role === 'center' ? '0 32px 80px rgba(0,0,0,0.35)' : '0 8px 24px rgba(0,0,0,0.2)',
                 }}
               >
-                <Icon size={26} strokeWidth={2.25} />
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Bottom-right: DISCOVER IT link */}
-        <a
-          href="#"
-          style={{
-            position: 'absolute',
-            bottom: isMobile ? '1.5rem' : '5rem',
-            right: isMobile ? '1rem' : '2.5rem',
-            zIndex: 60,
-            display: 'flex',
-            alignItems: 'center',
-            fontFamily: "'Anton', sans-serif",
-            fontSize: 'clamp(20px, 4vw, 56px)',
-            fontWeight: 400,
-            color: 'white',
-            opacity: 0.95,
-            letterSpacing: '-0.02em',
-            lineHeight: 1,
-            textTransform: 'uppercase',
-            textDecoration: 'none',
-            gap: 8,
-            transition: 'opacity 200ms',
-          }}
-          onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.opacity = '1')}
-          onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.opacity = '0.95')}
-        >
-          DISCOVER IT
-          <ArrowRight
-            style={{ width: isMobile ? 20 : 32, height: isMobile ? 20 : 32 }}
-            strokeWidth={2.25}
-          />
-        </a>
-
+                <img
+                  src={img.src}
+                  alt={`Character ${i + 1}`}
+                  style={{
+                    height: '100%',
+                    width: 'auto',
+                    objectFit: 'contain',
+                    display: 'block',
+                  }}
+                />
+                {role === 'center' && (
+                  <div
+                    style={{
+                      paddingBottom: isMobile ? 6 : 10,
+                      paddingTop: isMobile ? 4 : 6,
+                      textAlign: 'center',
+                    }}
+                  >
+                    <p
+                      style={{
+                        fontFamily: `'Anton', sans-serif`,
+                        fontSize: isMobile ? '1rem' : '1.375rem',
+                        color: 'white',
+                        opacity: 0.95,
+                        margin: 0,
+                      }}
+                    >
+                      TOONHUB
+                    </p>
+                  </div>
+                )}
+              </div>
+            </div>
+          );
+        })}
       </div>
+
+      {/* Bottom-left: text + nav buttons */}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: isMobile ? 16 : 32,
+          left: isMobile ? 16 : 40,
+          zIndex: 30,
+          display: 'flex',
+          flexDirection: 'column',
+          gap: isMobile ? 8 : 16,
+          maxWidth: isMobile ? '60vw' : 320,
+        }}
+      >
+        <p
+          style={{
+            fontFamily: `'Anton', sans-serif`,
+            fontSize: isMobile ? '1.125rem' : '1.5rem',
+            color: 'white',
+            margin: 0,
+            letterSpacing: '0.08em',
+          }}
+        >
+          TOONHUB FIGURINES
+        </p>
+        {!isMobile && (
+          <p
+            style={{
+              fontSize: '0.875rem',
+              color: 'white',
+              opacity: 0.85,
+              lineHeight: 1.6,
+              margin: 0,
+            }}
+          >
+            The artwork is stunning, shipped fully prepared. The finish is a vision, the 3D craft is flawless. Many thanks! Wishing you the win. Order now.
+          </p>
+        )}
+        <div style={{ display: 'flex', gap: isMobile ? 8 : 12 }}>
+          {([{ dir: 'prev' as const, Icon: ArrowLeft }, { dir: 'next' as const, Icon: ArrowRight }]).map(({ dir, Icon }) => (
+            <button
+              key={dir}
+              onClick={() => navigate(dir)}
+              style={{
+                width: isMobile ? 48 : 64,
+                height: isMobile ? 48 : 64,
+                borderRadius: '50%',
+                background: 'transparent',
+                border: '2px solid white',
+                color: 'white',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                transition: 'transform 150ms, background-color 150ms',
+              }}
+              onMouseEnter={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1.08)';
+                (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'rgba(255,255,255,0.12)';
+              }}
+              onMouseLeave={(e) => {
+                (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)';
+                (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'transparent';
+              }}
+            >
+              <Icon size={isMobile ? 18 : 24} />
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Bottom-right: DISCOVER IT link */}
+      <a
+        href="#"
+        style={{
+          position: 'absolute',
+          bottom: isMobile ? 24 : 40,
+          right: isMobile ? 16 : 40,
+          zIndex: 30,
+          fontFamily: `'Anton', sans-serif`,
+          fontSize: isMobile ? '0.75rem' : '0.875rem',
+          color: 'white',
+          opacity: 0.95,
+          letterSpacing: '0.12em',
+          textDecoration: 'none',
+          borderBottom: '1px solid rgba(255,255,255,0.5)',
+          paddingBottom: 2,
+          transition: 'opacity 150ms',
+        }}
+        onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.opacity = '1')}
+        onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.opacity = '0.95')}
+      >
+        DISCOVER IT
+      </a>
     </div>
   );
 }
