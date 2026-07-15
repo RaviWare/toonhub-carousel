@@ -18,6 +18,7 @@ const EASE = '650ms cubic-bezier(0.22, 1, 0.36, 1)';
 export default function ToonHubCarousel() {
   const [active, setActive] = useState(0);
   const [locked, setLocked] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
   const item = FIGURES[active];
 
@@ -27,6 +28,14 @@ export default function ToonHubCarousel() {
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
   }, []);
+
+  useEffect(() => {
+    if (isPaused) return;
+    const timer = window.setInterval(() => {
+      setActive((current) => (current + 1) % FIGURES.length);
+    }, 5200);
+    return () => window.clearInterval(timer);
+  }, [isPaused]);
 
   const navigate = useCallback((direction: 1 | -1) => {
     if (locked) return;
@@ -59,11 +68,18 @@ export default function ToonHubCarousel() {
         <div style={{ color: 'rgba(255,255,255,.6)', fontSize: 11, letterSpacing: '.13em' }}>COLLECTIBLE CULTURE / 2026</div>
       </header>
 
-      <section style={{ position: 'relative', minHeight: '100svh', maxWidth: 1540, margin: '0 auto' }}>
-        <div style={{ position: 'absolute', left: isMobile ? 20 : 46, top: isMobile ? '16%' : '23%', zIndex: 6, maxWidth: 280 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: item.accent, letterSpacing: '.14em', fontSize: 10, fontWeight: 700 }}><Sparkles size={14} /> LIMITED DROP</div>
-          <h1 style={{ fontFamily: 'Anton, sans-serif', fontWeight: 400, fontSize: 'clamp(3.25rem, 7.8vw, 8rem)', letterSpacing: '-.045em', lineHeight: .82, margin: '18px 0 14px' }}>{item.name}</h1>
-          <p style={{ margin: 0, maxWidth: 210, color: 'rgba(255,255,255,.68)', lineHeight: 1.6, fontSize: 13 }}>{item.role}. Sculpted for the shelf, engineered for your imagination.</p>
+      <section
+        style={{ position: 'relative', minHeight: '100svh', maxWidth: 1540, margin: '0 auto' }}
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+        onFocusCapture={() => setIsPaused(true)}
+        onBlurCapture={() => setIsPaused(false)}
+      >
+        <div style={{ position: 'absolute', left: isMobile ? 20 : 46, top: isMobile ? '16%' : '23%', zIndex: 6, maxWidth: isMobile ? 220 : 318 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: item.accent, letterSpacing: '.16em', fontSize: 10, fontWeight: 700, textTransform: 'uppercase' }}><Sparkles size={14} /> Series one / limited drop</div>
+          <h1 style={{ fontFamily: 'Anton, sans-serif', fontWeight: 400, fontSize: 'clamp(3.45rem, 8.2vw, 8.8rem)', letterSpacing: '-.055em', lineHeight: .78, margin: '19px 0 17px', textShadow: '0 10px 34px rgba(0,0,0,.22)' }}>{item.name.split('-')[0]}<span style={{ display: 'block', color: item.accent, fontSize: '.36em', letterSpacing: '.08em', lineHeight: 1.2, marginTop: 10 }}>{item.name.split('-')[1]}</span></h1>
+          <div style={{ width: 38, height: 2, background: item.accent, marginBottom: 14 }} />
+          <p style={{ margin: 0, maxWidth: 250, color: 'rgba(255,255,255,.78)', lineHeight: 1.7, fontSize: 13, fontWeight: 500 }}><strong style={{ color: '#fff', display: 'block', textTransform: 'uppercase', letterSpacing: '.11em', fontSize: 10, marginBottom: 6 }}>{item.role}</strong>A hand-finished digital collectible — sculpted for the shelf, built for the imagination.</p>
         </div>
 
         <div style={{ position: 'absolute', inset: 0, zIndex: 3, pointerEvents: 'none' }}>
@@ -71,7 +87,7 @@ export default function ToonHubCarousel() {
         </div>
 
         <div style={{ position: 'absolute', right: isMobile ? 20 : 46, bottom: isMobile ? 24 : 36, zIndex: 11, textAlign: 'right' }}>
-          <div style={{ fontSize: 11, letterSpacing: '.15em', color: 'rgba(255,255,255,.58)', marginBottom: 12 }}>0{active + 1} / 0{FIGURES.length}</div>
+          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end', gap: 7, fontSize: 10, letterSpacing: '.14em', color: 'rgba(255,255,255,.65)', marginBottom: 12 }}><span style={{ width: 6, height: 6, borderRadius: '50%', background: item.accent, boxShadow: `0 0 12px ${item.accent}` }} /> AUTO / 0{active + 1} — 0{FIGURES.length}</div>
           <div style={{ display: 'flex', gap: 8 }}>
             <button aria-label="Previous figure" onClick={() => navigate(-1)} style={buttonStyle}><ArrowLeft size={21} /></button>
             <button aria-label="Next figure" onClick={() => navigate(1)} style={buttonStyle}><ArrowRight size={21} /></button>
