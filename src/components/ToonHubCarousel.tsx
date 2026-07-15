@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useState } from 'react';
 import { ArrowLeft, ArrowRight, Sparkles } from 'lucide-react';
-import atlasFox from '../assets/atlas-fox.png';
-import orbitChameleon from '../assets/orbit-chameleon.png';
-import violetDj from '../assets/violet-dj.png';
-import roamPanda from '../assets/roam-panda.png';
+import atlasFox from '../assets/cutouts/atlas-fox-cutout.png';
+import orbitChameleon from '../assets/cutouts/orbit-chameleon-cutout.png';
+import violetDj from '../assets/cutouts/violet-dj-cutout.png';
+import roamPanda from '../assets/cutouts/roam-panda-cutout.png';
 
 const FIGURES = [
   { src: atlasFox, name: 'ATLAS-01', role: 'Chrome fox', bg: '#101a37', glow: '#5f8dff', accent: '#f3c36a' },
@@ -33,7 +33,7 @@ export default function ToonHubCarousel() {
     if (isPaused) return;
     const timer = window.setInterval(() => {
       setActive((current) => (current + 1) % FIGURES.length);
-    }, 5200);
+    }, 3000);
     return () => window.clearInterval(timer);
   }, [isPaused]);
 
