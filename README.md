@@ -1,16 +1,17 @@
 # TOONHUB — 3D Character Figurine Carousel
 
-A full-viewport hero section built with **React + TypeScript + Vite + Tailwind CSS** and `lucide-react` icons.
+An interactive, full-viewport collectible-figurine carousel built with **React, TypeScript, Vite, Tailwind CSS**, and `lucide-react`.
+
+**Live demo:** https://raviware.github.io/toonhub-carousel/
 
 ## Features
 
-- 4-item character carousel with depth-based roles (center / left / right / back)
-- 650ms crossfade transitions — background color, blur, scale, opacity, position
-- Giant ghost "3D SHAPE" text in Anton font behind the characters
-- Grain overlay, responsive mobile/desktop layouts
-- Arrow navigation with animated hover states
-- "DISCOVER IT" Anton-font CTA link bottom-right
-- All 4 images preloaded on mount
+- Four original 3D figurines with transparent backgrounds for seamless layering
+- Automatic three-second rotation, paused during hover or keyboard interaction
+- Depth-based center, side, and background positions with fluid transitions
+- Responsive editorial layout, oversized display type, grain, and dynamic color themes
+- Keyboard-friendly previous/next navigation controls
+- Atlas character favicon and GitHub Pages deployment workflow
 
 ## Tech Stack
 
@@ -20,14 +21,14 @@ A full-viewport hero section built with **React + TypeScript + Vite + Tailwind C
 - lucide-react icons
 - Google Fonts: Anton + Inter
 
-## Getting Started
+## Run locally
 
 ```bash
 npm install
 npm run dev
 ```
 
-Then open http://localhost:5173
+Vite prints the development address after the server starts.
 
 ## File Structure
 
