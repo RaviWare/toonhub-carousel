@@ -1,307 +1,86 @@
-import { useEffect, useState, useCallback } from 'react';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { useCallback, useEffect, useState } from 'react';
+import { ArrowLeft, ArrowRight, Sparkles } from 'lucide-react';
+import atlasFox from '../assets/atlas-fox.png';
+import orbitChameleon from '../assets/orbit-chameleon.png';
+import violetDj from '../assets/violet-dj.png';
+import roamPanda from '../assets/roam-panda.png';
 
-const IMAGES = [
-  { src: 'https://fifth-gentle-45902158.figma.site/_components/v2/4de492f6d9cf8244ad5293233e5c6f52407d42fc/1.02464a56.png', bg: '#F4845F', panel: '#F79B7F' },
-  { src: 'https://fifth-gentle-45902158.figma.site/_components/v2/4de492f6d9cf8244ad5293233e5c6f52407d42fc/2.b977faab.png', bg: '#6BBF7A', panel: '#85CC92' },
-  { src: 'https://fifth-gentle-45902158.figma.site/_components/v2/4de492f6d9cf8244ad5293233e5c6f52407d42fc/3.4df853b4.png', bg: '#E882B4', panel: '#ED9DC4' },
-  { src: 'https://fifth-gentle-45902158.figma.site/_components/v2/4de492f6d9cf8244ad5293233e5c6f52407d42fc/4.4457fbce.png', bg: '#6EB5FF', panel: '#8DC4FF' },
+const FIGURES = [
+  { src: atlasFox, name: 'ATLAS-01', role: 'Chrome fox', bg: '#101a37', glow: '#5f8dff', accent: '#f3c36a' },
+  { src: orbitChameleon, name: 'ORBIT-02', role: 'Deep-space chameleon', bg: '#063d3d', glow: '#2ee8dd', accent: '#ff8b50' },
+  { src: violetDj, name: 'VIOLET-03', role: 'Midnight selector', bg: '#351052', glow: '#df73ff', accent: '#ffd24a' },
+  { src: roamPanda, name: 'ROAM-04', role: 'Street photographer', bg: '#44101f', glow: '#ff5d70', accent: '#ffb389' },
 ];
 
-const GRAIN_SVG = `data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23noise)' opacity='0.08'/%3E%3C/svg%3E`;
-
-const TRANSITION = 'transform 650ms cubic-bezier(0.4,0,0.2,1), filter 650ms cubic-bezier(0.4,0,0.2,1), opacity 650ms cubic-bezier(0.4,0,0.2,1), left 650ms cubic-bezier(0.4,0,0.2,1), bottom 650ms cubic-bezier(0.4,0,0.2,1), height 650ms cubic-bezier(0.4,0,0.2,1)';
+const GRAIN = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.36'/%3E%3C/svg%3E";
+const EASE = '650ms cubic-bezier(0.22, 1, 0.36, 1)';
 
 export default function ToonHubCarousel() {
-  const [activeIndex, setActiveIndex] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(false);
+  const [active, setActive] = useState(0);
+  const [locked, setLocked] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 640);
+  const item = FIGURES[active];
 
   useEffect(() => {
-    IMAGES.forEach(({ src }) => {
-      const img = new Image();
-      img.src = src;
-    });
+    FIGURES.forEach(({ src }) => { const image = new Image(); image.src = src; });
+    const onResize = () => setIsMobile(window.innerWidth < 640);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
   }, []);
 
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 640);
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  const navigate = useCallback((direction: 1 | -1) => {
+    if (locked) return;
+    setLocked(true);
+    setActive((current) => (current + direction + FIGURES.length) % FIGURES.length);
+    window.setTimeout(() => setLocked(false), 650);
+  }, [locked]);
 
-  const navigate = useCallback((dir: 'next' | 'prev') => {
-    if (isAnimating) return;
-    setIsAnimating(true);
-    setActiveIndex((prev) => dir === 'next' ? (prev + 1) % 4 : (prev + 3) % 4);
-    setTimeout(() => setIsAnimating(false), 650);
-  }, [isAnimating]);
-
-  const center = activeIndex;
-  const left = (activeIndex + 3) % 4;
-  const right = (activeIndex + 1) % 4;
-  const back = (activeIndex + 2) % 4;
-
-  function getRoleStyle(index: number): React.CSSProperties {
-    if (index === center) {
-      return {
-        left: '50%',
-        bottom: isMobile ? '22%' : 0,
-        height: isMobile ? '60%' : '92%',
-        transform: `translateX(-50%) scale(${isMobile ? 1.25 : 1.68})`,
-        filter: 'none',
-        opacity: 1,
-        zIndex: 20,
-      };
-    }
-    if (index === left) {
-      return {
-        left: isMobile ? '20%' : '30%',
-        bottom: isMobile ? '32%' : '12%',
-        height: isMobile ? '16%' : '28%',
-        transform: 'translateX(-50%) scale(1)',
-        filter: 'blur(2px)',
-        opacity: 0.85,
-        zIndex: 10,
-      };
-    }
-    if (index === right) {
-      return {
-        left: isMobile ? '80%' : '70%',
-        bottom: isMobile ? '32%' : '12%',
-        height: isMobile ? '16%' : '28%',
-        transform: 'translateX(-50%) scale(1)',
-        filter: 'blur(2px)',
-        opacity: 0.85,
-        zIndex: 10,
-      };
-    }
-    // back
-    return {
-      left: '50%',
-      bottom: isMobile ? '32%' : '12%',
-      height: isMobile ? '13%' : '22%',
-      transform: 'translateX(-50%) scale(1)',
-      filter: 'blur(4px)',
-      opacity: 1,
-      zIndex: 5,
+  const position = (index: number): React.CSSProperties => {
+    const distance = (index - active + FIGURES.length) % FIGURES.length;
+    const base: React.CSSProperties = {
+      position: 'absolute', bottom: isMobile ? '11%' : '-4%', left: '50%',
+      width: isMobile ? '70vw' : 'min(35vw, 540px)', aspectRatio: '2 / 3',
+      transformOrigin: 'bottom center', transition: `all ${EASE}`, willChange: 'transform, opacity, filter',
     };
-  }
+    if (distance === 0) return { ...base, transform: 'translateX(-50%) scale(1)', opacity: 1, filter: 'none', zIndex: 4 };
+    if (distance === 1) return { ...base, transform: `translateX(${isMobile ? '18%' : '50%'}) scale(${isMobile ? '.46' : '.56'})`, opacity: .52, filter: 'blur(1px)', zIndex: 2 };
+    if (distance === 3) return { ...base, transform: `translateX(${isMobile ? '-118%' : '-150%'}) scale(${isMobile ? '.46' : '.56'})`, opacity: .52, filter: 'blur(1px)', zIndex: 2 };
+    return { ...base, transform: 'translateX(-50%) scale(.38)', opacity: .18, filter: 'blur(5px)', zIndex: 1 };
+  };
 
   return (
-    <div
-      style={{
-        backgroundColor: IMAGES[activeIndex].bg,
-        transition: 'background-color 650ms cubic-bezier(0.4,0,0.2,1)',
-        fontFamily: "'Inter', sans-serif",
-        position: 'relative',
-        width: '100%',
-        overflow: 'hidden',
-      }}
-    >
-      <div style={{ position: 'relative', width: '100%', height: '100vh', overflow: 'hidden' }}>
+    <main style={{ minHeight: '100svh', overflow: 'hidden', position: 'relative', color: '#fff', background: item.bg, fontFamily: 'Inter, sans-serif', transition: `background ${EASE}` }}>
+      <div style={{ position: 'absolute', inset: 0, background: `radial-gradient(circle at 50% 50%, ${item.glow}31, transparent 36%), linear-gradient(125deg, ${item.bg}, #05060b 92%)`, transition: `background ${EASE}` }} />
+      <div aria-hidden style={{ position: 'absolute', inset: 0, opacity: .12, backgroundImage: `url("${GRAIN}")`, mixBlendMode: 'soft-light', pointerEvents: 'none', zIndex: 10 }} />
+      <div aria-hidden style={{ position: 'absolute', top: '13%', left: 0, right: 0, zIndex: 0, fontFamily: 'Anton, sans-serif', fontSize: 'clamp(7rem, 23vw, 22rem)', letterSpacing: '-.07em', lineHeight: .75, whiteSpace: 'nowrap', textAlign: 'center', color: 'rgba(255,255,255,.075)' }}>TOONHUB</div>
 
-        {/* Grain overlay */}
-        <div
-          style={{
-            position: 'absolute',
-            inset: 0,
-            pointerEvents: 'none',
-            zIndex: 50,
-            backgroundImage: `url("${GRAIN_SVG}")`,
-            backgroundSize: '200px 200px',
-            backgroundRepeat: 'repeat',
-            opacity: 0.4,
-          }}
-        />
+      <header style={{ position: 'absolute', top: 0, left: 0, right: 0, padding: isMobile ? '22px 20px' : '32px 46px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 11 }}>
+        <div style={{ fontWeight: 700, letterSpacing: '.2em', fontSize: 12 }}>TOONHUB<sup style={{ fontSize: 7, marginLeft: 3 }}>®</sup></div>
+        <div style={{ color: 'rgba(255,255,255,.6)', fontSize: 11, letterSpacing: '.13em' }}>COLLECTIBLE CULTURE / 2026</div>
+      </header>
 
-        {/* Ghost text */}
-        <div
-          style={{
-            position: 'absolute',
-            insetInline: 0,
-            top: '18%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            pointerEvents: 'none',
-            userSelect: 'none',
-            zIndex: 2,
-          }}
-        >
-          <span
-            style={{
-              fontFamily: "'Anton', sans-serif",
-              fontSize: 'clamp(90px, 28vw, 380px)',
-              fontWeight: 900,
-              color: 'white',
-              opacity: 1,
-              lineHeight: 1,
-              textTransform: 'uppercase',
-              letterSpacing: '-0.02em',
-              whiteSpace: 'nowrap',
-            }}
-          >
-            3D SHAPE
-          </span>
+      <section style={{ position: 'relative', minHeight: '100svh', maxWidth: 1540, margin: '0 auto' }}>
+        <div style={{ position: 'absolute', left: isMobile ? 20 : 46, top: isMobile ? '16%' : '23%', zIndex: 6, maxWidth: 280 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: item.accent, letterSpacing: '.14em', fontSize: 10, fontWeight: 700 }}><Sparkles size={14} /> LIMITED DROP</div>
+          <h1 style={{ fontFamily: 'Anton, sans-serif', fontWeight: 400, fontSize: 'clamp(3.25rem, 7.8vw, 8rem)', letterSpacing: '-.045em', lineHeight: .82, margin: '18px 0 14px' }}>{item.name}</h1>
+          <p style={{ margin: 0, maxWidth: 210, color: 'rgba(255,255,255,.68)', lineHeight: 1.6, fontSize: 13 }}>{item.role}. Sculpted for the shelf, engineered for your imagination.</p>
         </div>
 
-        {/* Brand label */}
-        <div
-          style={{
-            position: 'absolute',
-            top: '1.5rem',
-            left: isMobile ? '1rem' : '2rem',
-            zIndex: 60,
-            fontSize: '0.75rem',
-            fontWeight: 600,
-            textTransform: 'uppercase',
-            color: 'white',
-            opacity: 0.9,
-            letterSpacing: '0.18em',
-          }}
-        >
-          TOONHUB
+        <div style={{ position: 'absolute', inset: 0, zIndex: 3, pointerEvents: 'none' }}>
+          {FIGURES.map((figure, index) => <figure key={figure.name} style={{ ...position(index), margin: 0 }}><img src={figure.src} alt={figure.name} draggable={false} style={{ width: '100%', height: '100%', objectFit: 'contain', objectPosition: 'bottom center', display: 'block', userSelect: 'none' }} /></figure>)}
         </div>
 
-        {/* Carousel items */}
-        <div style={{ position: 'absolute', inset: 0, zIndex: 3 }}>
-          {IMAGES.map((img, i) => (
-            <div
-              key={i}
-              style={{
-                position: 'absolute',
-                aspectRatio: '0.6 / 1',
-                transition: TRANSITION,
-                willChange: 'transform, filter, opacity',
-                ...getRoleStyle(i),
-              }}
-            >
-              <img
-                src={img.src}
-                alt={`TOONHUB figure ${i + 1}`}
-                draggable={false}
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  objectFit: 'contain',
-                  objectPosition: 'bottom center',
-                  display: 'block',
-                }}
-              />
-            </div>
-          ))}
-        </div>
-
-        {/* Bottom-left: text + nav buttons */}
-        <div
-          style={{
-            position: 'absolute',
-            bottom: isMobile ? '1.5rem' : '5rem',
-            left: isMobile ? '1rem' : '6rem',
-            zIndex: 60,
-            maxWidth: 320,
-          }}
-        >
-          <p
-            style={{
-              fontWeight: 700,
-              textTransform: 'uppercase',
-              letterSpacing: '0.02em',
-              marginBottom: isMobile ? '0.5rem' : '0.75rem',
-              fontSize: isMobile ? '1rem' : '1.375rem',
-              color: 'white',
-              opacity: 0.95,
-              margin: 0,
-              marginBottom: isMobile ? 8 : 12,
-            }}
-          >
-            TOONHUB FIGURINES
-          </p>
-          {!isMobile && (
-            <p
-              style={{
-                fontSize: '0.875rem',
-                color: 'white',
-                opacity: 0.85,
-                lineHeight: 1.6,
-                marginBottom: '1.25rem',
-                margin: 0,
-                marginBottom: 20,
-              }}
-            >
-              The artwork is stunning, shipped fully prepared. The finish is a vision, the 3D craft is flawless. Many thanks! Wishing you the win. Order now.
-            </p>
-          )}
-          <div style={{ display: 'flex', gap: '0.75rem', marginTop: isMobile ? 8 : 0 }}>
-            {([
-              { dir: 'prev' as const, Icon: ArrowLeft },
-              { dir: 'next' as const, Icon: ArrowRight },
-            ]).map(({ dir, Icon }) => (
-              <button
-                key={dir}
-                onClick={() => navigate(dir)}
-                style={{
-                  width: isMobile ? 48 : 64,
-                  height: isMobile ? 48 : 64,
-                  borderRadius: '50%',
-                  background: 'transparent',
-                  border: '2px solid white',
-                  color: 'white',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  transition: 'transform 150ms, background-color 150ms',
-                }}
-                onMouseEnter={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1.08)';
-                  (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'rgba(255,255,255,0.12)';
-                }}
-                onMouseLeave={(e) => {
-                  (e.currentTarget as HTMLButtonElement).style.transform = 'scale(1)';
-                  (e.currentTarget as HTMLButtonElement).style.backgroundColor = 'transparent';
-                }}
-              >
-                <Icon size={26} strokeWidth={2.25} />
-              </button>
-            ))}
+        <div style={{ position: 'absolute', right: isMobile ? 20 : 46, bottom: isMobile ? 24 : 36, zIndex: 11, textAlign: 'right' }}>
+          <div style={{ fontSize: 11, letterSpacing: '.15em', color: 'rgba(255,255,255,.58)', marginBottom: 12 }}>0{active + 1} / 0{FIGURES.length}</div>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button aria-label="Previous figure" onClick={() => navigate(-1)} style={buttonStyle}><ArrowLeft size={21} /></button>
+            <button aria-label="Next figure" onClick={() => navigate(1)} style={buttonStyle}><ArrowRight size={21} /></button>
           </div>
         </div>
-
-        {/* Bottom-right: DISCOVER IT link */}
-        <a
-          href="#"
-          style={{
-            position: 'absolute',
-            bottom: isMobile ? '1.5rem' : '5rem',
-            right: isMobile ? '1rem' : '2.5rem',
-            zIndex: 60,
-            display: 'flex',
-            alignItems: 'center',
-            fontFamily: "'Anton', sans-serif",
-            fontSize: 'clamp(20px, 4vw, 56px)',
-            fontWeight: 400,
-            color: 'white',
-            opacity: 0.95,
-            letterSpacing: '-0.02em',
-            lineHeight: 1,
-            textTransform: 'uppercase',
-            textDecoration: 'none',
-            gap: 8,
-            transition: 'opacity 200ms',
-          }}
-          onMouseEnter={(e) => ((e.currentTarget as HTMLAnchorElement).style.opacity = '1')}
-          onMouseLeave={(e) => ((e.currentTarget as HTMLAnchorElement).style.opacity = '0.95')}
-        >
-          DISCOVER IT
-          <ArrowRight
-            style={{ width: isMobile ? 20 : 32, height: isMobile ? 20 : 32 }}
-            strokeWidth={2.25}
-          />
-        </a>
-
-      </div>
-    </div>
+        <a href="#collection" style={{ position: 'absolute', left: isMobile ? 20 : 46, bottom: isMobile ? 28 : 40, zIndex: 11, color: '#fff', textDecoration: 'none', fontSize: 12, fontWeight: 700, letterSpacing: '.14em', borderBottom: `1px solid ${item.accent}`, paddingBottom: 6 }}>EXPLORE THE DROP ↗</a>
+      </section>
+    </main>
   );
 }
+
+const buttonStyle: React.CSSProperties = { width: 52, height: 52, borderRadius: '50%', border: '1px solid rgba(255,255,255,.48)', background: 'rgba(5,6,11,.25)', color: '#fff', cursor: 'pointer', display: 'grid', placeItems: 'center', backdropFilter: 'blur(9px)' };
